@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Alchemy Cloud ATS</title>
+    <title>Alchemy Cloud ATS - Product Enablement Specialist</title>
     <style>
         * {
             margin: 0;
@@ -110,6 +110,7 @@
             padding: 1rem;
             border-radius: 12px;
             box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            flex-wrap: wrap;
         }
 
         .tab {
@@ -208,6 +209,7 @@
             justify-content: center;
             font-weight: bold;
             font-size: 1.25rem;
+            flex-shrink: 0;
         }
 
         .candidate-info {
@@ -228,6 +230,7 @@
         .candidate-actions {
             display: flex;
             gap: 0.5rem;
+            flex-shrink: 0;
         }
 
         /* Buttons */
@@ -274,22 +277,37 @@
             display: inline-block;
         }
 
-        .badge-active {
-            background: #dcfce7;
-            color: #166534;
+        .badge-screening {
+            background: #e0e7ff;
+            color: #4338ca;
         }
 
-        .badge-review {
+        .badge-hr {
             background: #fef3c7;
             color: #92400e;
         }
 
-        .badge-interview {
+        .badge-technical {
             background: #ddd6fe;
             color: #5b21b6;
         }
 
-        .badge-hired {
+        .badge-team {
+            background: #cffafe;
+            color: #0891b2;
+        }
+
+        .badge-task {
+            background: #fed7aa;
+            color: #c2410c;
+        }
+
+        .badge-presentation {
+            background: #fecaca;
+            color: #dc2626;
+        }
+
+        .badge-completed {
             background: #d1fae5;
             color: #065f46;
         }
@@ -341,7 +359,7 @@
             background: var(--white);
             border-radius: 12px;
             padding: 2rem;
-            max-width: 600px;
+            max-width: 800px;
             width: 90%;
             max-height: 90vh;
             overflow-y: auto;
@@ -414,6 +432,45 @@
             color: var(--gray);
         }
 
+        /* Pipeline Timeline */
+        .timeline {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+            align-items: center;
+        }
+
+        .timeline-step {
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            background: var(--light);
+            color: var(--gray);
+        }
+
+        .timeline-step.completed {
+            background: var(--success);
+            color: var(--white);
+        }
+
+        .timeline-step.current {
+            background: var(--primary);
+            color: var(--white);
+        }
+
+        .timeline-arrow {
+            color: var(--gray);
+            font-size: 0.7rem;
+        }
+
+        /* Interview Schedule */
+        .interview-date {
+            display: inline-block;
+            margin-left: 0.5rem;
+            color: var(--gray);
+            font-size: 0.875rem;
+        }
+
         /* Responsive */
         @media (max-width: 768px) {
             .main-content {
@@ -431,6 +488,15 @@
 
             .stats-grid {
                 grid-template-columns: 1fr;
+            }
+
+            .candidate-card {
+                flex-wrap: wrap;
+            }
+
+            .candidate-actions {
+                width: 100%;
+                margin-top: 1rem;
             }
         }
     </style>
@@ -451,8 +517,8 @@
                 <a href="#" onclick="showDashboard()">Dashboard</a>
                 <a href="#" onclick="showJobs()">Jobs</a>
                 <a href="#" onclick="showCandidates()">Candidates</a>
-                <a href="#" onclick="showReports()">Reports</a>
-                <button class="btn btn-primary" onclick="showModal('newJobModal')">Post New Job</button>
+                <a href="#" onclick="showPipeline()">Pipeline</a>
+                <button class="btn btn-primary" onclick="showModal('newCandidateModal')">Add Candidate</button>
             </div>
         </nav>
     </header>
@@ -464,30 +530,35 @@
             <aside class="sidebar">
                 <h3 style="margin-bottom: 1rem;">Quick Filters</h3>
                 <div style="margin-bottom: 1rem;">
-                    <label class="form-label">Status</label>
-                    <select class="form-select">
-                        <option>All Statuses</option>
-                        <option>Active</option>
-                        <option>Review</option>
-                        <option>Interview</option>
-                        <option>Hired</option>
-                        <option>Rejected</option>
+                    <label class="form-label">Stage</label>
+                    <select class="form-select" id="stageFilter" onchange="filterCandidates()">
+                        <option value="all">All Stages</option>
+                        <option value="screening">Initial Screening</option>
+                        <option value="hr">HR Interview</option>
+                        <option value="technical">Technical Interview</option>
+                        <option value="team">Team Interview</option>
+                        <option value="task">Task</option>
+                        <option value="presentation">Presentation</option>
+                        <option value="completed">Completed</option>
+                        <option value="rejected">Rejected</option>
                     </select>
                 </div>
                 <div style="margin-bottom: 1rem;">
-                    <label class="form-label">Department</label>
-                    <select class="form-select">
-                        <option>All Departments</option>
-                        <option>Engineering</option>
-                        <option>Sales</option>
-                        <option>Marketing</option>
-                        <option>HR</option>
+                    <label class="form-label">Location</label>
+                    <select class="form-select" id="locationFilter" onchange="filterCandidates()">
+                        <option value="all">All Locations</option>
+                        <option value="remote">Remote</option>
+                        <option value="onsite">On-site</option>
                     </select>
                 </div>
                 <div>
-                    <label class="form-label">Date Range</label>
-                    <input type="date" class="form-input" style="margin-bottom: 0.5rem;">
-                    <input type="date" class="form-input">
+                    <label class="form-label">Interview Date</label>
+                    <select class="form-select" id="dateFilter" onchange="filterCandidates()">
+                        <option value="all">All Dates</option>
+                        <option value="today">Today</option>
+                        <option value="week">This Week</option>
+                        <option value="month">This Month</option>
+                    </select>
                 </div>
             </aside>
 
@@ -495,56 +566,51 @@
             <div class="content-area">
                 <!-- Dashboard View -->
                 <div id="dashboardView" class="view">
-                    <h2 style="margin-bottom: 1.5rem;">Recruitment Dashboard</h2>
+                    <h2 style="margin-bottom: 1.5rem;">Product Enablement Specialist - Recruitment Dashboard</h2>
                     
                     <div class="stats-grid">
                         <div class="stat-card">
-                            <div class="stat-card-value">1</div>
-                            <div class="stat-card-label">Active Jobs</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-card-value">18</div>
+                            <div class="stat-card-value">34</div>
                             <div class="stat-card-label">Total Candidates</div>
                         </div>
                         <div class="stat-card">
-                            <div class="stat-card-value">2</div>
-                            <div class="stat-card-label">Interviews Scheduled</div>
+                            <div class="stat-card-value">26</div>
+                            <div class="stat-card-label">In Screening</div>
                         </div>
                         <div class="stat-card">
-                            <div class="stat-card-value">0</div>
-                            <div class="stat-card-label">Offers Extended</div>
+                            <div class="stat-card-value">5</div>
+                            <div class="stat-card-label">Team Interviews</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-card-value">3</div>
+                            <div class="stat-card-label">Technical Interviews</div>
                         </div>
                     </div>
 
-                    <h3 style="margin-bottom: 1rem;">Recent Activity</h3>
+                    <h3 style="margin-bottom: 1rem;">Upcoming Interviews</h3>
                     <div class="card">
                         <div style="margin-bottom: 1rem;">
-                            <strong>New Application:</strong> Alex Thompson applied for Product Enablement Specialist
-                            <span style="color: var(--gray); float: right;">3 hours ago</span>
+                            <strong>Today (June 3):</strong> Raychel Brown - Technical Interview
+                            <span style="color: var(--gray); float: right;">Portland, OR</span>
                         </div>
                         <div style="margin-bottom: 1rem;">
-                            <strong>Interview Scheduled:</strong> Jamie Lee - Product Enablement Specialist position
-                            <span style="color: var(--gray); float: right;">1 day ago</span>
+                            <strong>June 6:</strong> Achala Rao - Team Interview
+                            <span style="color: var(--gray); float: right;">New York, NY</span>
+                        </div>
+                        <div style="margin-bottom: 1rem;">
+                            <strong>June 10:</strong> Matthew Gosselin - Team Interview
+                            <span style="color: var(--gray); float: right;">Southern Pines, NC</span>
                         </div>
                         <div>
-                            <strong>Application Received:</strong> Morgan Patel for Product Enablement Specialist
-                            <span style="color: var(--gray); float: right;">2 days ago</span>
+                            <strong>June 12:</strong> Devin O'Neill - Team Interview
+                            <span style="color: var(--gray); float: right;">Washington DC</span>
                         </div>
                     </div>
                 </div>
 
                 <!-- Jobs View -->
                 <div id="jobsView" class="view" style="display: none;">
-                    <div class="search-bar">
-                        <input type="text" class="search-input" placeholder="Search jobs...">
-                        <button class="btn btn-primary">Search</button>
-                    </div>
-
-                    <div class="tabs">
-                        <button class="tab active">Active (1)</button>
-                        <button class="tab">Draft (0)</button>
-                        <button class="tab">Closed (12)</button>
-                    </div>
+                    <h2 style="margin-bottom: 1.5rem;">Open Position</h2>
 
                     <div class="card job-card">
                         <div class="job-header">
@@ -553,25 +619,25 @@
                                 <div class="job-meta">
                                     <span>Product & Customer Success</span>
                                     <span>•</span>
-                                    <span>San Francisco, CA / Remote</span>
+                                    <span>Multiple Locations / Remote</span>
                                     <span>•</span>
                                     <span>Full-time</span>
                                 </div>
                             </div>
-                            <span class="badge badge-active">Active</span>
+                            <span class="badge badge-screening">Active</span>
                         </div>
                         <div class="job-stats">
                             <div class="stat">
-                                <div class="stat-value">18</div>
-                                <div class="stat-label">Applicants</div>
+                                <div class="stat-value">34</div>
+                                <div class="stat-label">Total Applicants</div>
                             </div>
                             <div class="stat">
-                                <div class="stat-value">6</div>
-                                <div class="stat-label">In Review</div>
+                                <div class="stat-value">26</div>
+                                <div class="stat-label">In Screening</div>
                             </div>
                             <div class="stat">
-                                <div class="stat-value">2</div>
-                                <div class="stat-label">Interviews</div>
+                                <div class="stat-value">8</div>
+                                <div class="stat-label">In Interview Process</div>
                             </div>
                         </div>
                     </div>
@@ -580,129 +646,48 @@
                 <!-- Candidates View -->
                 <div id="candidatesView" class="view" style="display: none;">
                     <div class="search-bar">
-                        <input type="text" class="search-input" placeholder="Search candidates...">
-                        <button class="btn btn-primary">Search</button>
+                        <input type="text" class="search-input" placeholder="Search candidates..." id="candidateSearch" onkeyup="filterCandidates()">
+                        <button class="btn btn-primary" onclick="filterCandidates()">Search</button>
                     </div>
 
                     <div class="tabs">
-                        <button class="tab active">All (156)</button>
-                        <button class="tab">New (23)</button>
-                        <button class="tab">In Review (45)</button>
-                        <button class="tab">Interview (38)</button>
+                        <button class="tab active" onclick="filterByStage('all')">All (34)</button>
+                        <button class="tab" onclick="filterByStage('screening')">Screening (26)</button>
+                        <button class="tab" onclick="filterByStage('technical')">Technical (3)</button>
+                        <button class="tab" onclick="filterByStage('team')">Team Interview (5)</button>
                     </div>
 
-                    <div class="card candidate-card">
-                        <div class="candidate-avatar">SJ</div>
-                        <div class="candidate-info">
-                            <div class="candidate-name">Sarah Johnson</div>
-                            <div class="candidate-details">
-                                Senior Frontend Developer • 5 years experience • San Francisco, CA
-                            </div>
-                            <div style="margin-top: 0.5rem;">
-                                <span class="badge badge-review">In Review</span>
-                            </div>
-                        </div>
-                        <div class="candidate-actions">
-                            <button class="btn btn-primary" onclick="showModal('candidateModal')">View Profile</button>
-                            <button class="btn btn-secondary btn-icon">
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
-                                    <polyline points="22,6 12,13 2,6"></polyline>
-                                </svg>
-                            </button>
-                        </div>
-                    </div>
-
-                    <div class="card candidate-card">
-                        <div class="candidate-avatar">MC</div>
-                        <div class="candidate-info">
-                            <div class="candidate-name">Mike Chen</div>
-                            <div class="candidate-details">
-                                Product Manager • 7 years experience • New York, NY
-                            </div>
-                            <div style="margin-top: 0.5rem;">
-                                <span class="badge badge-interview">Interview Scheduled</span>
-                            </div>
-                        </div>
-                        <div class="candidate-actions">
-                            <button class="btn btn-primary" onclick="showModal('candidateModal')">View Profile</button>
-                            <button class="btn btn-secondary btn-icon">
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
-                                    <polyline points="22,6 12,13 2,6"></polyline>
-                                </svg>
-                            </button>
-                        </div>
-                    </div>
+                    <div id="candidatesList"></div>
                 </div>
 
-                <!-- Reports View -->
-                <div id="reportsView" class="view" style="display: none;">
-                    <h2 style="margin-bottom: 1.5rem;">Recruitment Reports</h2>
+                <!-- Pipeline View -->
+                <div id="pipelineView" class="view" style="display: none;">
+                    <h2 style="margin-bottom: 1.5rem;">Recruitment Pipeline</h2>
                     
-                    <div class="card">
-                        <h3 style="margin-bottom: 1rem;">Time to Hire Analysis</h3>
-                        <p>Average time to hire: <strong>28 days</strong></p>
-                        <p>Fastest hire: Engineering (22 days)</p>
-                        <p>Slowest hire: Executive positions (45 days)</p>
-                    </div>
-
-                    <div class="card">
-                        <h3 style="margin-bottom: 1rem;">Source Effectiveness</h3>
-                        <p>LinkedIn: 45% of hires</p>
-                        <p>Employee Referrals: 30% of hires</p>
-                        <p>Company Website: 15% of hires</p>
-                        <p>Other: 10% of hires</p>
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <h4>Initial Screening</h4>
+                            <div class="stat-card-value">26</div>
+                            <div id="screeningList" style="margin-top: 1rem; max-height: 200px; overflow-y: auto;"></div>
+                        </div>
+                        <div class="stat-card">
+                            <h4>Technical Interview</h4>
+                            <div class="stat-card-value">3</div>
+                            <div id="technicalList" style="margin-top: 1rem;"></div>
+                        </div>
+                        <div class="stat-card">
+                            <h4>Team Interview</h4>
+                            <div class="stat-card-value">5</div>
+                            <div id="teamList" style="margin-top: 1rem;"></div>
+                        </div>
+                        <div class="stat-card">
+                            <h4>Final Stage</h4>
+                            <div class="stat-card-value">0</div>
+                            <div id="finalList" style="margin-top: 1rem;"></div>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
-
-    <!-- New Job Modal -->
-    <div id="newJobModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2 class="modal-title">Post New Job</h2>
-                <button class="btn btn-secondary btn-icon" onclick="closeModal('newJobModal')">✕</button>
-            </div>
-            <form>
-                <div class="form-group">
-                    <label class="form-label">Job Title</label>
-                    <input type="text" class="form-input" placeholder="e.g. Senior Frontend Developer">
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Department</label>
-                    <select class="form-select">
-                        <option>Engineering</option>
-                        <option>Product</option>
-                        <option>Sales</option>
-                        <option>Marketing</option>
-                        <option>HR</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Location</label>
-                    <input type="text" class="form-input" placeholder="e.g. San Francisco, CA or Remote">
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Employment Type</label>
-                    <select class="form-select">
-                        <option>Full-time</option>
-                        <option>Part-time</option>
-                        <option>Contract</option>
-                        <option>Internship</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Job Description</label>
-                    <textarea class="form-textarea" placeholder="Enter job description..."></textarea>
-                </div>
-                <div style="display: flex; gap: 1rem; justify-content: flex-end;">
-                    <button type="button" class="btn btn-secondary" onclick="closeModal('newJobModal')">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Post Job</button>
-                </div>
-            </form>
         </div>
     </div>
 
@@ -713,36 +698,81 @@
                 <h2 class="modal-title">Candidate Profile</h2>
                 <button class="btn btn-secondary btn-icon" onclick="closeModal('candidateModal')">✕</button>
             </div>
-            <div style="display: flex; gap: 2rem; margin-bottom: 2rem;">
-                <div class="candidate-avatar" style="width: 80px; height: 80px; font-size: 2rem;">SJ</div>
-                <div>
-                    <h3>Sarah Johnson</h3>
-                    <p style="color: var(--gray);">Senior Frontend Developer</p>
-                    <p style="color: var(--gray);">sarah.johnson@email.com • (555) 123-4567</p>
+            <div id="candidateModalContent"></div>
+        </div>
+    </div>
+
+    <!-- New Candidate Modal -->
+    <div id="newCandidateModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Add New Candidate</h2>
+                <button class="btn btn-secondary btn-icon" onclick="closeModal('newCandidateModal')">✕</button>
+            </div>
+            <form>
+                <div class="form-group">
+                    <label class="form-label">Name</label>
+                    <input type="text" class="form-input" placeholder="Full name">
                 </div>
-            </div>
-            <div class="form-group">
-                <h4>Experience</h4>
-                <p>5+ years of experience in frontend development with expertise in React, TypeScript, and modern web technologies.</p>
-            </div>
-            <div class="form-group">
-                <h4>Skills</h4>
-                <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
-                    <span class="badge badge-active">React</span>
-                    <span class="badge badge-active">TypeScript</span>
-                    <span class="badge badge-active">JavaScript</span>
-                    <span class="badge badge-active">CSS/SASS</span>
-                    <span class="badge badge-active">GraphQL</span>
+                <div class="form-group">
+                    <label class="form-label">Location</label>
+                    <input type="text" class="form-input" placeholder="City, State">
                 </div>
-            </div>
-            <div style="display: flex; gap: 1rem; justify-content: flex-end;">
-                <button class="btn btn-secondary">Reject</button>
-                <button class="btn btn-primary">Move to Interview</button>
-            </div>
+                <div class="form-group">
+                    <label class="form-label">Resume Link</label>
+                    <input type="url" class="form-input" placeholder="Google Drive link">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Notes</label>
+                    <textarea class="form-textarea" placeholder="Initial notes..."></textarea>
+                </div>
+                <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('newCandidateModal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Add Candidate</button>
+                </div>
+            </form>
         </div>
     </div>
 
     <script>
+        // Candidate data from spreadsheet
+        const candidates = [
+            {name: "Matthew Gosselin", location: "Southern Pines, NC", stage: "Team Interview", hrDate: "May 22", techDate: "May 27", teamDate: "Jun 10", resumeLink: "https://drive.google.com/file/d/1oEGvOqXy-pMlAk-wOLg4nutmgc68qdEj/view?usp=sharing"},
+            {name: "Achala Rao", location: "New York, NY", stage: "Team Interview", hrDate: "May 23", techDate: "May 28", teamDate: "Jun 6", resumeLink: "https://drive.google.com/file/d/1AnEW5w9BPf9IxiO39cQ50ivalZTSdnFA/view?usp=sharing"},
+            {name: "Daniel Cohen", location: "Beacon, NY", stage: "Technical Interview", hrDate: "May 23", techDate: "May 29", resumeLink: "https://drive.google.com/file/d/1mnlnT6xuUN1uqpB8nGe8C0qkab5Dr4d7/view?usp=sharing"},
+            {name: "Raychel Brown", location: "Portland, OR", stage: "Technical Interview", hrDate: "May 28", techDate: "Jun 3", resumeLink: "https://drive.google.com/file/d/1OgnOLJVPjsaV1DIYSf8p0mU2Hz565mhC/view?usp=sharing"},
+            {name: "Gabriel Woodworth", location: "Boise, ID", stage: "Team Interview", hrDate: "May 26", techDate: "Jun 2", teamDate: "Invite sent", resumeLink: "https://drive.google.com/file/d/1wwDlvGN_oQeRDi8qf2AzRR64Ee2AUbVy/view?usp=sharing"},
+            {name: "Shalini Sikdar", location: "Novi, MI", stage: "Technical Interview", hrDate: "May 23", techDate: "English not on required level", resumeLink: "https://drive.google.com/file/d/1JilBu72TVBTObmkyXXXPfWfFSdnpDdZi/view?usp=sharing"},
+            {name: "Eric Vega", location: "Austin, TX", stage: "Team Interview", hrDate: "May 28", techDate: "Jun 2", teamDate: "Invite sent", resumeLink: "https://drive.google.com/file/d/1KNAbVBAJ3cbf22pokm9thaQylWgvQCpF/view?usp=sharing"},
+            {name: "Devin O'Neill", location: "Washington DC", stage: "Team Interview", hrDate: "May 22", techDate: "May 27", teamDate: "Jun 12", resumeLink: "https://drive.google.com/file/d/13gJ_D8bxyoIiQVyoTbAiSLM_C77FQK4Q/view?usp=sharing"},
+            {name: "Atharva Uplenchwar", location: "Boston, MA", stage: "Initial Screening", resumeLink: "https://drive.google.com/file/d/1ObSGXN4Fcx7oEa-s9dVByi_3N0_qqmzk/view?usp=sharing"},
+            {name: "Joshua Neeter", location: "St. Louis, MO", stage: "Initial Screening", resumeLink: "https://drive.google.com/file/d/1oT2V59aOHMYW8Z_gMqxl-CjpfTTJRRB0/view?usp=sharing"},
+            {name: "Mackenzie Norris", location: "Denver, CO", stage: "Initial Screening", resumeLink: "https://drive.google.com/file/d/19hOr8UqCd0sLdTYvhgjJBP76mGlzQzNt/view?usp=sharing"},
+            {name: "Kiran Karthik", location: "San Francisco, CA", stage: "Initial Screening", resumeLink: "https://drive.google.com/file/d/10VvYvvGSCQMBZmxl6mxz6Xbm6i2_K0mz/view?usp=sharing"},
+            {name: "Syed Hafeez", location: "Dallas, TX", stage: "Initial Screening", resumeLink: "https://drive.google.com/file/d/1t3uyZVN5YJzQrQuCDVEX8QW-8oCQcbGm/view?usp=sharing"},
+            {name: "Tania Espaillat", location: "Miami, FL", stage: "Initial Screening", resumeLink: "https://drive.google.com/file/d/1-pSgtGwLdVwUCVXLJOoHLlHQ5vRhFUf4/view?usp=sharing"},
+            {name: "Setu Kathawate", location: "Seattle, WA", stage: "Initial Screening", resumeLink: "https://drive.google.com/file/d/1kGcTD6xgS7GIDTRzHt7CwG-JHHOiCCJv/view?usp=sharing"},
+            {name: "Katie Sikorski", location: "Chicago, IL", stage: "Initial Screening", resumeLink: "https://drive.google.com/file/d/10-3-P7IIKP7vEUKgstRcBW6Q1Rx1rD4v/view?usp=sharing"},
+            {name: "Laurel Donoghue", location: "Phoenix, AZ", stage: "Initial Screening", resumeLink: "https://drive.google.com/file/d/1_KS75j8_S20HBvxI9IgKHo4N-cKQdG3G/view?usp=sharing"},
+            {name: "James Toomey", location: "Philadelphia, PA", stage: "Initial Screening", resumeLink: "https://drive.google.com/file/d/1cDqRqSsqBBOb8VVHnGzQcD48wO5HzGpH/view?usp=sharing"},
+            {name: "Shubhangi Mittal", location: "Atlanta, GA", stage: "Initial Screening", resumeLink: "https://drive.google.com/file/d/1pUq0wbA5kS84HJ5BvDkDnz_kA4c8iKbV/view?usp=sharing"},
+            {name: "Saksham Arora", location: "Houston, TX", stage: "Initial Screening", resumeLink: "https://drive.google.com/file/d/13QfLfTa5KKKCJJJrxjdKHH-N8LMuxHw8/view?usp=sharing"},
+            {name: "Benjamin Goodson", location: "Nashville, TN", stage: "Initial Screening", resumeLink: "https://drive.google.com/file/d/1W0kMxFKCdLQVJt5LyQMqo7SLb55tXi7R/view?usp=sharing"},
+            {name: "Zoe Tanner", location: "Las Vegas, NV", stage: "Initial Screening", resumeLink: "https://drive.google.com/file/d/1K5DGwg12j6cHvMJKrEDO3vkQA7Ee4JQ1/view?usp=sharing"},
+            {name: "Harshika Gupta", location: "San Diego, CA", stage: "Initial Screening", resumeLink: "https://drive.google.com/file/d/1TdcfBOWjjQSQnFKFTLQRX1pAcfCB8zD3/view?usp=sharing"},
+            {name: "Andrea Saenz", location: "Los Angeles, CA", stage: "Initial Screening", resumeLink: "https://drive.google.com/file/d/1Y7fI-01TQsxJ4T4SHxNhPvwfKQkjEJ7V/view?usp=sharing"},
+            {name: "Christian Korsah", location: "Detroit, MI", stage: "Initial Screening", resumeLink: "https://drive.google.com/file/d/12Qj1dkfLIpnDYJ2TbKkyuUEJCqBGdKGE/view?usp=sharing"},
+            {name: "Karan Patel", location: "Charlotte, NC", stage: "Initial Screening", resumeLink: "https://drive.google.com/file/d/1fFQABCaDXdrvVT7HNwTPGKdQs-KDtQs_/view?usp=sharing"},
+            {name: "Suresh Chaganti", location: "Columbus, OH", stage: "Initial Screening", resumeLink: "https://drive.google.com/file/d/1THOHsZGyJP3u3b5d9x7eqGP2zYUeBv_7/view?usp=sharing"},
+            {name: "Dylan Roskam", location: "Indianapolis, IN", stage: "Initial Screening", resumeLink: "https://drive.google.com/file/d/1TaOLhutx0bTzXnXQZHRBcsjqKXRFOdxj/view?usp=sharing"},
+            {name: "Maria Diaz", location: "San Antonio, TX", stage: "Initial Screening", resumeLink: "https://drive.google.com/file/d/11RJRqIRAIdnGaZXdO1W_GJ_8TwKa7C0t/view?usp=sharing"},
+            {name: "Wali Usmani", location: "Minneapolis, MN", stage: "Initial Screening", resumeLink: "https://drive.google.com/file/d/1sAJnOg45PJLyxdZNkMkNiHYZVQrJo0-K/view?usp=sharing"},
+            {name: "Tina Li", location: "Milwaukee, WI", stage: "Initial Screening", resumeLink: "https://drive.google.com/file/d/1_yoHo9pzg0SvR4sFcRmKjJnLGMl3g81r/view?usp=sharing"},
+            {name: "Ananth Kumar", location: "Tampa, FL", stage: "Initial Screening", resumeLink: "https://drive.google.com/file/d/1YDBz8HTnFt8DuoHDcgqOH4xIvSy2aIMo/view?usp=sharing"},
+            {name: "Rima Tewari", location: "Orlando, FL", stage: "Initial Screening", resumeLink: "https://drive.google.com/file/d/1gQMz83EsjqBZ1rHjOz0OJ0FVb5MaB7OZ/view?usp=sharing"},
+            {name: "Nachiket Deshpande", location: "Richmond, VA", stage: "Initial Screening", resumeLink: "https://drive.google.com/file/d/1RL0LqGv5I4M5MKrF2vEHbhiE36sjLcJk/view?usp=sharing"}
+        ];
+
         // View Management
         function showView(viewId) {
             document.querySelectorAll('.view').forEach(view => {
@@ -761,10 +791,12 @@
 
         function showCandidates() {
             showView('candidatesView');
+            renderCandidates();
         }
 
-        function showReports() {
-            showView('reportsView');
+        function showPipeline() {
+            showView('pipelineView');
+            renderPipeline();
         }
 
         // Modal Management
@@ -776,13 +808,236 @@
             document.getElementById(modalId).classList.remove('active');
         }
 
+        // Get initials from name
+        function getInitials(name) {
+            return name.split(' ').map(n => n[0]).join('').toUpperCase();
+        }
+
+        // Get badge class for stage
+        function getBadgeClass(stage) {
+            const stageMap = {
+                'Initial Screening': 'badge-screening',
+                'HR Interview': 'badge-hr',
+                'Technical Interview': 'badge-technical',
+                'Team Interview': 'badge-team',
+                'Task': 'badge-task',
+                'Presentation': 'badge-presentation',
+                'Completed': 'badge-completed',
+                'Rejected': 'badge-rejected'
+            };
+            return stageMap[stage] || 'badge-screening';
+        }
+
+        // Render candidates
+        function renderCandidates(filteredCandidates = candidates) {
+            const candidatesList = document.getElementById('candidatesList');
+            candidatesList.innerHTML = '';
+            
+            filteredCandidates.forEach(candidate => {
+                const card = document.createElement('div');
+                card.className = 'card candidate-card';
+                
+                const timeline = getTimeline(candidate);
+                
+                card.innerHTML = `
+                    <div class="candidate-avatar">${getInitials(candidate.name)}</div>
+                    <div class="candidate-info">
+                        <div class="candidate-name">${candidate.name}</div>
+                        <div class="candidate-details">
+                            ${candidate.location} • Product Enablement Specialist
+                        </div>
+                        <div style="margin-top: 0.5rem;">
+                            <span class="badge ${getBadgeClass(candidate.stage)}">${candidate.stage}</span>
+                            ${candidate.teamDate === 'Invite sent' ? '<span class="interview-date">Invite sent</span>' : ''}
+                            ${candidate.techDate === 'English not on required level' ? '<span class="interview-date" style="color: var(--danger);">Not qualified</span>' : ''}
+                        </div>
+                        ${timeline}
+                    </div>
+                    <div class="candidate-actions">
+                        <button class="btn btn-primary" onclick="showCandidateDetails('${candidate.name}')">View Details</button>
+                        <a href="${candidate.resumeLink}" target="_blank" class="btn btn-secondary btn-icon" title="View Resume">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                <polyline points="14 2 14 8 20 8"></polyline>
+                                <line x1="16" y1="13" x2="8" y2="13"></line>
+                                <line x1="16" y1="17" x2="8" y2="17"></line>
+                                <polyline points="10 9 9 9 8 9"></polyline>
+                            </svg>
+                        </a>
+                    </div>
+                `;
+                
+                candidatesList.appendChild(card);
+            });
+        }
+
+        // Get timeline for candidate
+        function getTimeline(candidate) {
+            const stages = ['Call', 'HR', 'Technical', 'Team', 'Task', 'Presentation'];
+            let timeline = '<div class="timeline">';
+            
+            stages.forEach((stage, index) => {
+                let status = '';
+                let date = '';
+                
+                if (stage === 'Call' && candidate.stage !== 'Initial Screening') {
+                    status = 'completed';
+                } else if (stage === 'HR' && candidate.hrDate) {
+                    status = candidate.stage === 'Initial Screening' ? '' : 'completed';
+                    date = candidate.hrDate;
+                } else if (stage === 'Technical' && candidate.techDate) {
+                    if (candidate.techDate.includes('not')) {
+                        status = '';
+                    } else {
+                        status = candidate.stage === 'Technical Interview' ? 'current' : 
+                                (candidate.stage === 'Team Interview' ? 'completed' : '');
+                        date = candidate.techDate;
+                    }
+                } else if (stage === 'Team' && candidate.teamDate) {
+                    status = candidate.stage === 'Team Interview' ? 'current' : '';
+                    date = candidate.teamDate;
+                }
+                
+                if (index > 0) timeline += '<span class="timeline-arrow">→</span>';
+                timeline += `<span class="timeline-step ${status}">${stage}${date && !date.includes('not') && !date.includes('Invite') ? ` (${date})` : ''}</span>`;
+            });
+            
+            timeline += '</div>';
+            return timeline;
+        }
+
+        // Show candidate details
+        function showCandidateDetails(candidateName) {
+            const candidate = candidates.find(c => c.name === candidateName);
+            if (!candidate) return;
+            
+            const modalContent = document.getElementById('candidateModalContent');
+            modalContent.innerHTML = `
+                <div style="display: flex; gap: 2rem; margin-bottom: 2rem;">
+                    <div class="candidate-avatar" style="width: 80px; height: 80px; font-size: 2rem;">${getInitials(candidate.name)}</div>
+                    <div>
+                        <h3>${candidate.name}</h3>
+                        <p style="color: var(--gray);">Product Enablement Specialist</p>
+                        <p style="color: var(--gray);">${candidate.location}</p>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <h4>Current Stage</h4>
+                    <span class="badge ${getBadgeClass(candidate.stage)}">${candidate.stage}</span>
+                </div>
+                <div class="form-group">
+                    <h4>Interview Timeline</h4>
+                    ${candidate.hrDate ? `<p><strong>HR Interview:</strong> ${candidate.hrDate}</p>` : ''}
+                    ${candidate.techDate ? `<p><strong>Technical Interview:</strong> ${candidate.techDate}</p>` : ''}
+                    ${candidate.teamDate ? `<p><strong>Team Interview:</strong> ${candidate.teamDate}</p>` : ''}
+                </div>
+                <div class="form-group">
+                    <h4>Documents</h4>
+                    <a href="${candidate.resumeLink}" target="_blank" class="btn btn-secondary">View Resume</a>
+                </div>
+                <div style="display: flex; gap: 1rem; justify-content: flex-end; margin-top: 2rem;">
+                    <button class="btn btn-secondary" onclick="closeModal('candidateModal')">Close</button>
+                    ${candidate.stage === 'Technical Interview' ? '<button class="btn btn-primary">Schedule Team Interview</button>' : ''}
+                    ${candidate.stage === 'Initial Screening' ? '<button class="btn btn-primary">Schedule HR Interview</button>' : ''}
+                </div>
+            `;
+            
+            showModal('candidateModal');
+        }
+
+        // Render pipeline view
+        function renderPipeline() {
+            const stages = {
+                screening: candidates.filter(c => c.stage === 'Initial Screening'),
+                technical: candidates.filter(c => c.stage === 'Technical Interview'),
+                team: candidates.filter(c => c.stage === 'Team Interview'),
+                final: []
+            };
+            
+            // Render screening list
+            const screeningList = document.getElementById('screeningList');
+            screeningList.innerHTML = stages.screening.map(c => 
+                `<div style="padding: 0.25rem 0; font-size: 0.875rem;">${c.name}</div>`
+            ).join('');
+            
+            // Render technical list
+            const technicalList = document.getElementById('technicalList');
+            technicalList.innerHTML = stages.technical.map(c => 
+                `<div style="padding: 0.5rem 0;">
+                    <strong>${c.name}</strong><br>
+                    <span style="font-size: 0.875rem; color: var(--gray);">${c.techDate}</span>
+                </div>`
+            ).join('');
+            
+            // Render team list
+            const teamList = document.getElementById('teamList');
+            teamList.innerHTML = stages.team.map(c => 
+                `<div style="padding: 0.5rem 0;">
+                    <strong>${c.name}</strong><br>
+                    <span style="font-size: 0.875rem; color: var(--gray);">${c.teamDate}</span>
+                </div>`
+            ).join('');
+        }
+
+        // Filter candidates
+        function filterCandidates() {
+            const searchTerm = document.getElementById('candidateSearch')?.value.toLowerCase() || '';
+            const stageFilter = document.getElementById('stageFilter').value;
+            const locationFilter = document.getElementById('locationFilter').value;
+            
+            let filtered = candidates;
+            
+            if (searchTerm) {
+                filtered = filtered.filter(c => 
+                    c.name.toLowerCase().includes(searchTerm) || 
+                    c.location.toLowerCase().includes(searchTerm)
+                );
+            }
+            
+            if (stageFilter !== 'all') {
+                const stageMap = {
+                    'screening': 'Initial Screening',
+                    'hr': 'HR Interview',
+                    'technical': 'Technical Interview',
+                    'team': 'Team Interview'
+                };
+                filtered = filtered.filter(c => c.stage === stageMap[stageFilter]);
+            }
+            
+            if (locationFilter !== 'all') {
+                // Simple remote/onsite filter - you can customize this logic
+                if (locationFilter === 'remote') {
+                    filtered = filtered.filter(c => c.location.includes('Remote'));
+                } else {
+                    filtered = filtered.filter(c => !c.location.includes('Remote'));
+                }
+            }
+            
+            renderCandidates(filtered);
+        }
+
+        // Filter by stage (for tabs)
+        function filterByStage(stage) {
+            // Update active tab
+            document.querySelectorAll('.tabs .tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // Set stage filter
+            document.getElementById('stageFilter').value = stage;
+            filterCandidates();
+        }
+
         // Tab Management
         document.querySelectorAll('.tab').forEach(tab => {
             tab.addEventListener('click', function() {
-                this.parentElement.querySelectorAll('.tab').forEach(t => {
-                    t.classList.remove('active');
-                });
-                this.classList.add('active');
+                if (!this.onclick) {
+                    this.parentElement.querySelectorAll('.tab').forEach(t => {
+                        t.classList.remove('active');
+                    });
+                    this.classList.add('active');
+                }
             });
         });
 
@@ -803,6 +1058,9 @@
                 this.closest('.modal').classList.remove('active');
             });
         });
+
+        // Initialize
+        renderCandidates();
     </script>
 </body>
 </html>
