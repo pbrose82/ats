@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alchemy Cloud ATS</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #8b5cf6;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --dark: #1f2937;
+            --gray: #6b7280;
+            --light: #f3f4f6;
+            --white: #ffffff;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: var(--light);
+            color: var(--dark);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header */
+        header {
+            background: var(--white);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--gray);
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+
+        /* Main Layout */
+        .main-content {
+            display: flex;
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .sidebar {
+            width: 250px;
+            background: var(--white);
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            height: fit-content;
+            position: sticky;
+            top: 90px;
+        }
+
+        .content-area {
+            flex: 1;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            background: var(--white);
+            padding: 1rem;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .tab {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            background: transparent;
+            color: var(--gray);
+            font-weight: 500;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+
+        .tab.active {
+            background: var(--primary);
+            color: var(--white);
+        }
+
+        /* Cards */
+        .card {
+            background: var(--white);
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            margin-bottom: 1rem;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        /* Job Card */
+        .job-card {
+            border-left: 4px solid var(--primary);
+        }
+
+        .job-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 1rem;
+        }
+
+        .job-title {
+            font-size: 1.25rem;
+            font-weight: bold;
+            color: var(--dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .job-meta {
+            display: flex;
+            gap: 1rem;
+            color: var(--gray);
+            font-size: 0.875rem;
+        }
+
+        .job-stats {
+            display: flex;
+            gap: 2rem;
+            margin-top: 1rem;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary);
+        }
+
+        .stat-label {
+            font-size: 0.875rem;
+            color: var(--gray);
+        }
+
+        /* Candidate Card */
+        .candidate-card {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .candidate-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: var(--primary);
+            color: var(--white);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.25rem;
+        }
+
+        .candidate-info {
+            flex: 1;
+        }
+
+        .candidate-name {
+            font-weight: bold;
+            font-size: 1.1rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .candidate-details {
+            color: var(--gray);
+            font-size: 0.875rem;
+        }
+
+        .candidate-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 6px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: var(--white);
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+        }
+
+        .btn-secondary {
+            background: var(--light);
+            color: var(--gray);
+        }
+
+        .btn-secondary:hover {
+            background: #e5e7eb;
+        }
+
+        .btn-icon {
+            padding: 0.5rem;
+            border-radius: 50%;
+        }
+
+        /* Status Badges */
+        .badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            display: inline-block;
+        }
+
+        .badge-active {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .badge-review {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .badge-interview {
+            background: #ddd6fe;
+            color: #5b21b6;
+        }
+
+        .badge-hired {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .badge-rejected {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        /* Search Bar */
+        .search-bar {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 0.75rem 1rem;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--white);
+            border-radius: 12px;
+            padding: 2rem;
+            max-width: 600px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        /* Forms */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .form-input, .form-select, .form-textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            font-size: 1rem;
+        }
+
+        .form-textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .form-input:focus, .form-select:focus, .form-textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        /* Stats Dashboard */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: var(--white);
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .stat-card-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-card-label {
+            color: var(--gray);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .main-content {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                position: static;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <nav class="container">
+            <div class="logo">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 2L2 7L12 12L22 7L12 2Z"></path>
+                    <path d="M2 17L12 22L22 17"></path>
+                    <path d="M2 12L12 17L22 12"></path>
+                </svg>
+                Alchemy Cloud ATS
+            </div>
+            <div class="nav-links">
+                <a href="#" onclick="showDashboard()">Dashboard</a>
+                <a href="#" onclick="showJobs()">Jobs</a>
+                <a href="#" onclick="showCandidates()">Candidates</a>
+                <a href="#" onclick="showReports()">Reports</a>
+                <button class="btn btn-primary" onclick="showModal('newJobModal')">Post New Job</button>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <div class="container">
+        <div class="main-content">
+            <!-- Sidebar -->
+            <aside class="sidebar">
+                <h3 style="margin-bottom: 1rem;">Quick Filters</h3>
+                <div style="margin-bottom: 1rem;">
+                    <label class="form-label">Status</label>
+                    <select class="form-select">
+                        <option>All Statuses</option>
+                        <option>Active</option>
+                        <option>Review</option>
+                        <option>Interview</option>
+                        <option>Hired</option>
+                        <option>Rejected</option>
+                    </select>
+                </div>
+                <div style="margin-bottom: 1rem;">
+                    <label class="form-label">Department</label>
+                    <select class="form-select">
+                        <option>All Departments</option>
+                        <option>Engineering</option>
+                        <option>Sales</option>
+                        <option>Marketing</option>
+                        <option>HR</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="form-label">Date Range</label>
+                    <input type="date" class="form-input" style="margin-bottom: 0.5rem;">
+                    <input type="date" class="form-input">
+                </div>
+            </aside>
+
+            <!-- Content Area -->
+            <div class="content-area">
+                <!-- Dashboard View -->
+                <div id="dashboardView" class="view">
+                    <h2 style="margin-bottom: 1.5rem;">Recruitment Dashboard</h2>
+                    
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-card-value">1</div>
+                            <div class="stat-card-label">Active Jobs</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-card-value">18</div>
+                            <div class="stat-card-label">Total Candidates</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-card-value">2</div>
+                            <div class="stat-card-label">Interviews Scheduled</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-card-value">0</div>
+                            <div class="stat-card-label">Offers Extended</div>
+                        </div>
+                    </div>
+
+                    <h3 style="margin-bottom: 1rem;">Recent Activity</h3>
+                    <div class="card">
+                        <div style="margin-bottom: 1rem;">
+                            <strong>New Application:</strong> Alex Thompson applied for Product Enablement Specialist
+                            <span style="color: var(--gray); float: right;">3 hours ago</span>
+                        </div>
+                        <div style="margin-bottom: 1rem;">
+                            <strong>Interview Scheduled:</strong> Jamie Lee - Product Enablement Specialist position
+                            <span style="color: var(--gray); float: right;">1 day ago</span>
+                        </div>
+                        <div>
+                            <strong>Application Received:</strong> Morgan Patel for Product Enablement Specialist
+                            <span style="color: var(--gray); float: right;">2 days ago</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Jobs View -->
+                <div id="jobsView" class="view" style="display: none;">
+                    <div class="search-bar">
+                        <input type="text" class="search-input" placeholder="Search jobs...">
+                        <button class="btn btn-primary">Search</button>
+                    </div>
+
+                    <div class="tabs">
+                        <button class="tab active">Active (1)</button>
+                        <button class="tab">Draft (0)</button>
+                        <button class="tab">Closed (12)</button>
+                    </div>
+
+                    <div class="card job-card">
+                        <div class="job-header">
+                            <div>
+                                <h3 class="job-title">Product Enablement Specialist</h3>
+                                <div class="job-meta">
+                                    <span>Product & Customer Success</span>
+                                    <span>•</span>
+                                    <span>San Francisco, CA / Remote</span>
+                                    <span>•</span>
+                                    <span>Full-time</span>
+                                </div>
+                            </div>
+                            <span class="badge badge-active">Active</span>
+                        </div>
+                        <div class="job-stats">
+                            <div class="stat">
+                                <div class="stat-value">18</div>
+                                <div class="stat-label">Applicants</div>
+                            </div>
+                            <div class="stat">
+                                <div class="stat-value">6</div>
+                                <div class="stat-label">In Review</div>
+                            </div>
+                            <div class="stat">
+                                <div class="stat-value">2</div>
+                                <div class="stat-label">Interviews</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Candidates View -->
+                <div id="candidatesView" class="view" style="display: none;">
+                    <div class="search-bar">
+                        <input type="text" class="search-input" placeholder="Search candidates...">
+                        <button class="btn btn-primary">Search</button>
+                    </div>
+
+                    <div class="tabs">
+                        <button class="tab active">All (156)</button>
+                        <button class="tab">New (23)</button>
+                        <button class="tab">In Review (45)</button>
+                        <button class="tab">Interview (38)</button>
+                    </div>
+
+                    <div class="card candidate-card">
+                        <div class="candidate-avatar">SJ</div>
+                        <div class="candidate-info">
+                            <div class="candidate-name">Sarah Johnson</div>
+                            <div class="candidate-details">
+                                Senior Frontend Developer • 5 years experience • San Francisco, CA
+                            </div>
+                            <div style="margin-top: 0.5rem;">
+                                <span class="badge badge-review">In Review</span>
+                            </div>
+                        </div>
+                        <div class="candidate-actions">
+                            <button class="btn btn-primary" onclick="showModal('candidateModal')">View Profile</button>
+                            <button class="btn btn-secondary btn-icon">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                                    <polyline points="22,6 12,13 2,6"></polyline>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="card candidate-card">
+                        <div class="candidate-avatar">MC</div>
+                        <div class="candidate-info">
+                            <div class="candidate-name">Mike Chen</div>
+                            <div class="candidate-details">
+                                Product Manager • 7 years experience • New York, NY
+                            </div>
+                            <div style="margin-top: 0.5rem;">
+                                <span class="badge badge-interview">Interview Scheduled</span>
+                            </div>
+                        </div>
+                        <div class="candidate-actions">
+                            <button class="btn btn-primary" onclick="showModal('candidateModal')">View Profile</button>
+                            <button class="btn btn-secondary btn-icon">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                                    <polyline points="22,6 12,13 2,6"></polyline>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Reports View -->
+                <div id="reportsView" class="view" style="display: none;">
+                    <h2 style="margin-bottom: 1.5rem;">Recruitment Reports</h2>
+                    
+                    <div class="card">
+                        <h3 style="margin-bottom: 1rem;">Time to Hire Analysis</h3>
+                        <p>Average time to hire: <strong>28 days</strong></p>
+                        <p>Fastest hire: Engineering (22 days)</p>
+                        <p>Slowest hire: Executive positions (45 days)</p>
+                    </div>
+
+                    <div class="card">
+                        <h3 style="margin-bottom: 1rem;">Source Effectiveness</h3>
+                        <p>LinkedIn: 45% of hires</p>
+                        <p>Employee Referrals: 30% of hires</p>
+                        <p>Company Website: 15% of hires</p>
+                        <p>Other: 10% of hires</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- New Job Modal -->
+    <div id="newJobModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Post New Job</h2>
+                <button class="btn btn-secondary btn-icon" onclick="closeModal('newJobModal')">✕</button>
+            </div>
+            <form>
+                <div class="form-group">
+                    <label class="form-label">Job Title</label>
+                    <input type="text" class="form-input" placeholder="e.g. Senior Frontend Developer">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Department</label>
+                    <select class="form-select">
+                        <option>Engineering</option>
+                        <option>Product</option>
+                        <option>Sales</option>
+                        <option>Marketing</option>
+                        <option>HR</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Location</label>
+                    <input type="text" class="form-input" placeholder="e.g. San Francisco, CA or Remote">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Employment Type</label>
+                    <select class="form-select">
+                        <option>Full-time</option>
+                        <option>Part-time</option>
+                        <option>Contract</option>
+                        <option>Internship</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Job Description</label>
+                    <textarea class="form-textarea" placeholder="Enter job description..."></textarea>
+                </div>
+                <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('newJobModal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Post Job</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Candidate Modal -->
+    <div id="candidateModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Candidate Profile</h2>
+                <button class="btn btn-secondary btn-icon" onclick="closeModal('candidateModal')">✕</button>
+            </div>
+            <div style="display: flex; gap: 2rem; margin-bottom: 2rem;">
+                <div class="candidate-avatar" style="width: 80px; height: 80px; font-size: 2rem;">SJ</div>
+                <div>
+                    <h3>Sarah Johnson</h3>
+                    <p style="color: var(--gray);">Senior Frontend Developer</p>
+                    <p style="color: var(--gray);">sarah.johnson@email.com • (555) 123-4567</p>
+                </div>
+            </div>
+            <div class="form-group">
+                <h4>Experience</h4>
+                <p>5+ years of experience in frontend development with expertise in React, TypeScript, and modern web technologies.</p>
+            </div>
+            <div class="form-group">
+                <h4>Skills</h4>
+                <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                    <span class="badge badge-active">React</span>
+                    <span class="badge badge-active">TypeScript</span>
+                    <span class="badge badge-active">JavaScript</span>
+                    <span class="badge badge-active">CSS/SASS</span>
+                    <span class="badge badge-active">GraphQL</span>
+                </div>
+            </div>
+            <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+                <button class="btn btn-secondary">Reject</button>
+                <button class="btn btn-primary">Move to Interview</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // View Management
+        function showView(viewId) {
+            document.querySelectorAll('.view').forEach(view => {
+                view.style.display = 'none';
+            });
+            document.getElementById(viewId).style.display = 'block';
+        }
+
+        function showDashboard() {
+            showView('dashboardView');
+        }
+
+        function showJobs() {
+            showView('jobsView');
+        }
+
+        function showCandidates() {
+            showView('candidatesView');
+        }
+
+        function showReports() {
+            showView('reportsView');
+        }
+
+        // Modal Management
+        function showModal(modalId) {
+            document.getElementById(modalId).classList.add('active');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        // Tab Management
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                this.parentElement.querySelectorAll('.tab').forEach(t => {
+                    t.classList.remove('active');
+                });
+                this.classList.add('active');
+            });
+        });
+
+        // Close modal on outside click
+        document.querySelectorAll('.modal').forEach(modal => {
+            modal.addEventListener('click', function(e) {
+                if (e.target === this) {
+                    this.classList.remove('active');
+                }
+            });
+        });
+
+        // Prevent form submission for demo
+        document.querySelectorAll('form').forEach(form => {
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                alert('Form submitted! (This is a demo)');
+                this.closest('.modal').classList.remove('active');
+            });
+        });
+    </script>
+</body>
+</html>
